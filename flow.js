@@ -34,12 +34,10 @@
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}` }, stage);
 
-  // ---- defs: arrow markers + glow/shadow filters ----
+  // ---- defs: one arrow marker (fill inherits each edge's stroke, so tip + body always match) + filters ----
   const defs = el('defs', {}, svg);
-  [['fa-arr', C.edge], ['fa-arr-hi', C.edgeHi]].forEach(([id, color]) => {
-    const m = el('marker', { id, viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
-    el('path', { d: 'M0,0 L10,5 L0,10 z', fill: color }, m);
-  });
+  const arrM = el('marker', { id: 'fa-arr', viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+  el('path', { d: 'M0,0 L10,5 L0,10 z', fill: 'context-stroke' }, arrM);
   const fShadow = el('filter', { id: 'fl-shadow', x: '-60%', y: '-60%', width: '220%', height: '220%' }, defs);
   el('feDropShadow', { dx: 0, dy: 1, stdDeviation: 1.6, 'flood-color': '#000', 'flood-opacity': 0.5 }, fShadow);
   const fGlow = el('filter', { id: 'fl-glow', x: '-60%', y: '-60%', width: '220%', height: '220%' }, defs);
@@ -90,7 +88,7 @@
   text(poolG, 452, 270, 'crBTC', { 'font-size': 8, 'font-weight': 600, fill: C.crbtc });
   text(poolG, 502, 270, 'crETH', { 'font-size': 8, 'font-weight': 600, fill: C.creth });
   // swap arrow (crBTC -> crETH), shown during the trade step
-  pool.arrow = el('path', { d: 'M 466 220 Q 477 210 488 220', fill: 'none', stroke: C.edgeHi, 'stroke-width': 1.6, 'marker-end': 'url(#fa-arr-hi)', opacity: 0 }, poolG);
+  pool.arrow = el('path', { d: 'M 466 220 Q 477 210 488 220', fill: 'none', stroke: C.edgeHi, 'stroke-width': 1.6, 'marker-end': 'url(#fa-arr)', opacity: 0 }, poolG);
 
   function setPool(traded, hi) {
     const crB = traded ? { y: BASE - 44, h: 44 } : { y: BASE - 26, h: 26 };
@@ -200,7 +198,6 @@
       if (!e) return;
       e.setAttribute('stroke', C.edgeHi);
       e.setAttribute('stroke-width', 2.2);
-      e.setAttribute('marker-end', 'url(#fa-arr-hi)');
     });
 
     // pool + ghost

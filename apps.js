@@ -37,22 +37,16 @@
       contract: 'Stablecoin issuance contract'
     },
     {
-      cat: 'universal', name: 'Cross-Chain Staking', built: false, star: false,
-      issue: 'Staking protocols can only be secured by their own native asset, limiting emerging chains to their own liquidity.',
-      enables: 'Secure a protocol on one chain with liquid assets from another, such as ETH or BTC.',
-      contract: 'Staking / slashing contract'
+      cat: 'universal', name: 'Cross-Chain Lending & Staking', built: false, star: false,
+      issue: 'Lending and staking are confined to a chain’s own assets — borrowing across chains needs custodians, and protocols can only be secured by their native token.',
+      enables: 'Post collateral or stake from any chain to borrow any Crossroads asset or secure another chain — atomic cross-chain shorts, and liquid ETH or BTC backing emerging chains.',
+      contract: 'Lending / staking pool (e.g. Morpho, Euler)'
     },
     {
       cat: 'universal', name: 'Universal Testnet Faucet', built: true, star: false,
       issue: 'Testnet faucets are rate-limited, depleted, or identity-gated — and AI agents can’t clear the identity checks at all.',
       enables: 'Convert proof-of-work (Monero) directly into funds on any integrated testnet — no rate limits or identity.',
       contract: 'Faucet token contract'
-    },
-    {
-      cat: 'universal', name: 'Cross-Chain Lending', built: false, star: false,
-      issue: 'Borrowing against assets on one chain to obtain assets on another requires custodial intermediaries.',
-      enables: 'Use collateral from any chain to borrow any Crossroads asset — atomic cross-chain shorts and arbitrage.',
-      contract: 'Lending pool (e.g. Morpho, Euler)'
     },
     {
       cat: 'privacy', name: 'Private Payments', built: true, star: true,
