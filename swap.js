@@ -145,21 +145,22 @@
     const legs = [];
     if (bridges) legs.push(plural(bridges, 'bridge'));
     if (swaps) legs.push(plural(swaps, 'swap'));
-    const ltNote = (from.lt || to.lt)
-      ? `<div class="swap-note">Thin liquidity on long-tail tokens can split a swap across several pools, pushing slippage and fees higher still.</div>`
-      : '';
-
-    const dollars = Math.round(feePct / 100 * NOTIONAL);
-    const pctShown = (dollars / NOTIONAL * 100).toFixed(1);
+    // --- fee figures hidden for now (accuracy uncertain); uncomment to restore ---
+    // const ltNote = (from.lt || to.lt)
+    //   ? `<div class="swap-note">Thin liquidity on long-tail tokens can split a swap across several pools, pushing slippage and fees higher still.</div>`
+    //   : '';
+    // const dollars = Math.round(feePct / 100 * NOTIONAL);
+    // const pctShown = (dollars / NOTIONAL * 100).toFixed(1);
 
     routeBox.innerHTML =
       // `<div class="swap-route-head"><span class="swap-route-title">The route today</span>` +
       // `<span class="swap-route-tag">${plural(actions, 'on-chain action')}</span></div>` +
       `<ul class="swap-steps">${steps.join('')}</ul>` +
-      `<div class="swap-summary"><span class="swap-cost swap-cost-bad">&asymp; $${dollars.toLocaleString('en-US')} in fees</span> ` +
-      `on a $1,000 swap (${pctShown}%) &middot; ${legs.join(' + ')} across ` +
-      `<strong>${touched.size} chains</strong>, each charging at its own hop.</div>` +
-      ltNote;
+      // `<div class="swap-summary"><span class="swap-cost swap-cost-bad">&asymp; $${dollars.toLocaleString('en-US')} in fees</span> ` +
+      // `on a $1,000 swap (${pctShown}%) &middot; ${legs.join(' + ')} across ` +
+      // `<strong>${touched.size} chains</strong>, each charging at its own hop.</div>` +
+      // ltNote;
+      `<div class="swap-summary">${legs.join(' + ')} across <strong>${touched.size} chains</strong>.</div>`;
   }
 
   function renderSame() {
