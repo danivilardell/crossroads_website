@@ -1,11 +1,9 @@
 /* Applications explorer */
 (function () {
   const grid = document.getElementById('apps-grid');
-  const filters = document.getElementById('apps-filters');
-  if (!grid || !filters) return;
+  if (!grid) return;
 
   const CATS = [
-    { id: 'all', label: 'All' },
     { id: 'wallets', label: 'Wallets & Liquidity' },
     { id: 'universal', label: 'Universal Assets' },
     { id: 'privacy', label: 'Privacy & Compliance' }
@@ -21,7 +19,7 @@
     {
       cat: 'wallets', name: 'Cross-Chain DEX', built: true, star: false,
       issue: 'Cross-chain swaps support few networks and charge high fees, pushing users onto centralized exchanges or bridge aggregators.',
-      enables: 'Standard AMM contracts perform atomic swaps between native assets from arbitrary chains — one backend trade.',
+      enables: 'Standard AMM contracts perform atomic swaps between native assets from arbitrary chains.',
       contract: 'AMM pool (e.g. Uniswap)'
     },
     {
@@ -39,19 +37,19 @@
     {
       cat: 'universal', name: 'Cross-Chain Lending & Staking', built: false, star: false,
       issue: 'Lending and staking are confined to a chain’s own assets — borrowing across chains needs custodians, and protocols can only be secured by their native token.',
-      enables: 'Post collateral or stake from any chain to borrow any Crossroads asset or secure another chain — atomic cross-chain shorts, and liquid ETH or BTC backing emerging chains.',
+      enables: 'Post collateral or stake from any chain to borrow any Crossroads asset or secure another chain enabling atomic cross-chain shorts.',
       contract: 'Lending / staking pool (e.g. Morpho, Euler)'
     },
     {
       cat: 'universal', name: 'Universal Testnet Faucet', built: true, star: false,
       issue: 'Testnet faucets are rate-limited, depleted, or identity-gated — and AI agents can’t clear the identity checks at all.',
-      enables: 'Convert proof-of-work (Monero) directly into funds on any integrated testnet — no rate limits or identity.',
+      enables: 'Convert proof-of-work (e.g.Monero) directly into funds on any integrated testnet without any rate limits or identity verification requirements.',
       contract: 'Faucet token contract'
     },
     {
       cat: 'privacy', name: 'Private Payments', built: true, star: true,
       issue: 'On-chain transactions are public; matching the privacy of a centralized exchange otherwise means trusting a custodian.',
-      enables: 'Private transfers that leak only the size of deposits and withdrawals as funds enter or leave Crossroads.',
+      enables: 'Private transfers between assets inside the Crossroads system.',
       contract: '—'
     },
     {
@@ -70,16 +68,6 @@
 
   const catLabel = id => (CATS.find(c => c.id === id) || {}).label || id;
   function esc(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
-
-  // build filter chips
-  CATS.forEach((c, i) => {
-    const b = document.createElement('button');
-    b.className = 'apps-filter' + (i === 0 ? ' active' : '');
-    b.textContent = c.label;
-    b.dataset.cat = c.id;
-    b.addEventListener('click', () => setFilter(c.id, b));
-    filters.appendChild(b);
-  });
 
   // build cards
   APPS.forEach(app => {
@@ -115,12 +103,4 @@
 
     grid.appendChild(card);
   });
-
-  function setFilter(cat, btn) {
-    filters.querySelectorAll('.apps-filter').forEach(b => b.classList.toggle('active', b === btn));
-    grid.querySelectorAll('.app-card').forEach(card => {
-      const show = cat === 'all' || card.dataset.cat === cat;
-      card.style.display = show ? '' : 'none';
-    });
-  }
 })();
