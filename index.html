@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crossroads — A Smart Contract Layer for Chain-Abstracted Assets</title>
+  <meta name="description" content="Crossroads represents assets from nearly any blockchain — even chains without smart contracts, like Bitcoin — as ordinary ERC-20 tokens on a single programmable chain, so any app works across all of them." />
+  <meta name="theme-color" content="#fbfaf7" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Crossroads: A Smart Contract Layer for Chain-Abstracted Assets" />
+  <meta property="og:description" content="Every asset, from nearly any chain, as an ordinary ERC-20 token on one programmable hub." />
+  <meta property="og:image" content="logo.svg" />
+
+  <link rel="icon" href="logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="flow.js" defer></script>
+  <script src="swap.js" defer></script>
+  <script src="apps.js" defer></script>
+</head>
+<body>
+<main class="page">
+
+  <!-- ============================ HERO ============================ -->
+  <header class="hero">
+    <div class="brand">
+      <img class="logo" src="logo.svg" alt="" width="44" height="44" />
+      <span class="brand-name">Crossroads</span>
+    </div>
+    <h1 class="title">A Smart Contract Layer for Chain-Abstracted Assets</h1>
+    <p class="authors">
+      <a href="https://www.cs.cornell.edu/~james/">James Austgen</a><sup>*</sup>,
+      <a href="https://danivilardell.com">Dani Vilardell</a><sup>*</sup>,
+      <a href="https://www.arijuels.com">Ari Juels</a>
+    </p>
+    <p class="affiliations">
+      Cornell Tech &middot; IC3 &nbsp;<span class="equal-contrib">&mdash; <sup>*</sup>equal contribution</span>
+    </p>
+    <p class="venue">Preprint &middot; 2026</p>
+    <nav class="actions">
+      <!-- TODO: point "Read the paper" at the final hosted PDF (e.g. arXiv / Crossroads.pdf) -->
+      <a class="btn btn-primary" href="Crossroads.pdf">Read the paper</a>
+      <!-- TODO: point "Code" at the de-anonymized public repository -->
+      <a class="btn" href="#" data-link="code">Code</a>
+      <a class="btn" href="#cite">BibTeX</a>
+    </nav>
+  </header>
+
+  <!-- ============================ SUMMARY ============================ -->
+  <section class="section abstract">
+    <h2>Summary</h2>
+    <div class="abstract-body">
+      <p>
+        This paper introduces <strong>Crossroads</strong>, a smart contract layer for <em>chain-abstracted assets</em>. In Crossroads, assets from nearly any chain are represented on a single backend blockchain as <strong>ERC-20 tokens</strong>. As a result, any asset can participate in smart-contract-based exchange, lending, or privacy applications on a single unified platform. 
+      </p>
+      <p>
+        Crossroads relies on <em>key encumbrance</em>: a threshold signing committee holds encumbered keys controlling assets on each integrated chain, signing transactions only as authorized by smart contracts on the backend blockchain. Asset movements are fee-efficient, as ownership changes are recorded on the backend blockchain.
+      </p>
+      <p>
+        Crossroads enables <em>permissionless</em>, modular integration of new blockchains using pluggable oracles with flexible design options (zkBridge, TEE-based, hybrid).  We implement a proof of concept across multiple public blockchains: Bitcoin, Ethereum, and Solana. We catalog a range of applications enabled by Crossroads, including universal wallets, cross-chain staking and lending, privacy-preserving payments, and private management of public blockchain assets.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================ THE PROBLEM ============================ -->
+  <section class="section" id="problem">
+    <h2>The messy landscape of cross-chain interoperability</h2>
+    <p>
+      A bridge enables two blockchains to securely communicate between each other. However, to fully connect <em>N</em> chains via individual bridges, <em>N&sup2;</em> bridges are necessary, each one built, deployed, and audited separately. With the 
+      existence of over 150 active chains, this becomes heavily impractical. A <strong>hub-and-spoke</strong> 
+      design is a natural solution: connect each
+      chain once to a central hub and every pair becomes reachable via that hub, with just <em>N</em> connections,
+      far easier to audit than <em>N&sup2;</em> individual bridges.
+    </p>
+    <p>
+      But every hub in use today comes with strings attached. Integration is generally
+      <strong>permissioned</strong>: operators decide which chains can be integrated, so only a handful of high liquidity chains ever do;
+      the hub's logic is <strong>fixed</strong> at the protocol level (only enabling transfers or swaps);
+      and it usually demands verification logic on each integrated chain, leaving chains without smart
+      contracts, like Bitcoin, out. The ecosystem remains <strong>fragmented</strong> and to move between
+      two chains that don't share a hub, assets need to hop through a chain of intermediary bridges and swaps,
+      paying a fee at every step. Any application built on cross-chain interoperability inherits
+      those fees, making them prohibitively expensive.
+    </p>
+
+    <!-- ---- Interactive figure: cross-chain swap (the motivation) ---- -->
+    <div class="figure" id="swap">
+      <div class="swap-presets" id="swap-presets" aria-label="Example asset pairs"></div>
+      <div class="swap-pickers">
+        <div class="swap-field">
+          <span class="swap-label">I hold</span>
+          <select id="swap-from" class="swap-select" aria-label="Asset you hold"></select>
+        </div>
+        <div class="swap-sep" aria-hidden="true">&rarr;</div>
+        <div class="swap-field">
+          <span class="swap-label">I want</span>
+          <select id="swap-to" class="swap-select" aria-label="Asset you want"></select>
+        </div>
+      </div>
+      <div class="swap-routes">
+        <div class="swap-route swap-old" id="swap-old"></div>
+      </div>
+      <p class="caption">
+        Routes showcasing the steps to do a cross-chain swap.
+      </p>
+      <details class="swap-method">
+        <summary>How these fees are estimated</summary>
+        <div class="swap-method-body">
+          <p>
+            Illustrative, on a $1,000 swap: we sum the standard published fees a typical aggregator
+            route charges. Gas is extra, and real cost varies with size, liquidity, and routing — a
+            well-optimized route on deep liquidity can be cheaper (a live
+            <a href="https://li.fi/" target="_blank" rel="noopener">LI.FI</a> quote for ETH between L2s
+            ran ~0.4% all-in), while thin or exotic pairs run higher.
+          </p>
+          <ul>
+            <li><strong>Aggregator fee &asymp; 0.25%</strong>, once &mdash; <a href="https://docs.li.fi/guides/fees-monetization/faq" target="_blank" rel="noopener">LI.FI</a>'s platform fee.</li>
+            <li><strong>DEX swap &asymp; 0.3%</strong> per hop &mdash; <a href="https://docs.uniswap.org/concepts/protocol/fees" target="_blank" rel="noopener">Uniswap</a>'s standard tier; &asymp; 1% for thin long-tail pairs, plus slippage.</li>
+            <li><strong>Bridge &asymp; 0.05&ndash;0.25%</strong> per hop &mdash; <a href="https://docs.across.to/introduction/fees" target="_blank" rel="noopener">Across</a>, <a href="https://docs.stargate.finance/developers/protocol-docs/fees" target="_blank" rel="noopener">Stargate</a> (0.06%), <a href="https://docs.axelar.dev/" target="_blank" rel="noopener">Axelar/Squid</a> (0.1&ndash;0.25% for Cosmos corridors).</li>
+            <li><strong>Bitcoin via <a href="https://docs.thorchain.org/technical-documentation/technical-deep-dive/fees" target="_blank" rel="noopener">THORChain</a> &asymp; 0.5%</strong> &mdash; 0.05&ndash;0.5% liquidity fee plus affiliate and outbound fees.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <p>
+      The cost and complexity of cross-chain interoperability is what Crossroads aims to eliminate.
+    </p>
+  </section>
+
+  <!-- ============================ HOW IT WORKS ============================ -->
+  <section class="section" id="how">
+    <h2>How Crossroads works</h2>
+    <p>
+      Crossroads is a permissionless and programmable hub for blockchain assets. It represents assets from nearly any chain
+      (even ones without smart contracts, like Bitcoin or XRPL) as ERC-20 tokens on a single programmable
+      backend chain, where any contract can operate on them. It has three key properties that distinguish it from existing hubs:
+    </p>
+
+    <div class="props">
+      <article class="prop-card">
+        <div class="prop-tag">Programmable</div>
+        <p>
+          Any smart contract on the backend chain (AMMs, lending markets, staking contracts) automatically
+          works atomically on assets from every integrated chain.
+        </p>
+      </article>
+      <article class="prop-card">
+        <div class="prop-tag">Permissionless</div>
+        <p>
+          Any entity can integrate any chain to the system. Integrating a chain amounts to deploying its ERC-20
+          asset contract on the backend chain and an oracle relayingthe chain’s finalized transactions.
+        </p>
+      </article>
+      <article class="prop-card">
+        <div class="prop-tag">Minimal to integrate</div>
+        <p>
+          Crossroads needs only a unidirectional oracle from the asset chain to the backend chain, any chain with eventual, verifiable finality can be integrated, with no protocol changes on the chain itself.
+        </p>
+      </article>
+    </div>
+
+    <p>
+      Our system consists of five components. <strong>Asset chains</strong> are the existing blockchains integrated into Crossroads where the assets are held. 
+      The <strong>backend chain</strong> is a programmable EVM chain where every asset
+      that is deposited into Crossroads is minted and represented as an ERC-20 token. <strong>Asset contracts</strong> are the ERC-20 contracts that handle the minting, tracking, and burning of those tokens.
+      <strong>Oracles</strong> inform the backend chain when a transaction has finalized on an asset chain.
+      And a <strong>signing committee</strong> holds the keys to the deposit addresses, split into
+      shares under a threshold scheme, so no one ever holds a whole key, and handle the signing of withdrawals from the system. The flow of an exchange of BTC for ETH is illustrated in the figure below:
+    </p>
+
+    <!-- ---- Interactive figure 2 ---- -->
+    <div class="figure" id="flow">
+      <div class="fig-head">
+        <h3 class="fig-title">Follow a deposit, a trade, and a withdrawal</h3>
+      </div>
+      <div class="flow-stage" id="flow-stage" role="img" aria-label="Animated diagram of the Crossroads deposit, trade, and withdrawal flow"></div>
+      <div class="flow-desc" id="flow-desc"></div>
+      <div class="flow-controls">
+        <button class="flow-btn" id="flow-prev" aria-label="Previous step">&larr; Prev</button>
+        <div class="flow-dots" id="flow-dots"></div>
+        <button class="flow-btn" id="flow-next" aria-label="Next step">Next &rarr;</button>
+        <button class="flow-btn flow-btn-play" id="flow-play">&#9654;&nbsp;Play</button>
+      </div>
+    </div>
+
+    <p>
+      In Crossroads, the committee is both a policy engine and not a custodian and signs a withdrawal only when the asset
+      contract says you are allowed to make it. Via the use of threshold cryptography, no committee member ever holds the keys to the deposited funds.
+      This policy based custody model is called <strong>key encumbrance</strong>. The keys controlling your assets on the native chain
+      are generated and stored under a threshold signature scheme, and the policies for when and how they can be
+      used to sign transactions are handled by the asset contract. 
+    </p>
+  </section>
+
+  <!-- ============================ WHAT YOU CAN DO ============================ -->
+  <section class="section" id="do">
+    <h2>What you can do with it</h2>
+    <p>
+      Because every asset is just an ERC-20 token on the backend chain, any ERC-20-compatible contract becomes
+      a cross-chain application the moment it is deployed on the backend. We present and categorize a range of such applications:
+    </p>
+
+    <!-- ---- Interactive figure 4 ---- -->
+    <div class="apps" id="apps">
+      <div class="apps-filters" id="apps-filters"></div>
+      <div class="apps-grid" id="apps-grid"></div>
+      <p class="apps-legend">
+        <span class="apps-badge apps-badge-built">Built</span> = implemented in our prototype.
+        <span class="apps-mark">&lowast;</span> = needs a privacy-preserving backend (e.g. Oasis Sapphire).
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================ SECURITY ============================
+  <section class="section" id="security">
+    <h2>Soundness of our system</h2>
+    <p>
+      The core guarantee is called <strong>soundness</strong>: if you
+      hold a balance in Crossroads, you can always get it out — to an account you control on the
+      asset's native chain — no matter what anyone else does. We prove this holds as long as fewer
+      than the threshold of committee members are compromised. Soundness means an adversary in this
+      model can neither steal your funds nor freeze them.
+    </p>
+    <p>
+      Committees do get attacked in the real world, so Crossroads layers on
+      <strong>defense in depth</strong> — optional mechanisms that hold the line even if that
+      assumption is strained:
+    </p>
+    <div class="defense">
+      <div class="defense-chip">
+        <h4>Hardware enclaves</h4>
+        <p>Run committee nodes inside TEEs, mixing vendors so one chip flaw can't break the quorum.</p>
+      </div>
+      <div class="defense-chip">
+        <h4>Security council</h4>
+        <p>An emergency council that can freeze contracts during an exploit automated checks miss.</p>
+      </div>
+      <div class="defense-chip">
+        <h4>Accountable signatures</h4>
+        <p>Signatures that reveal exactly which members signed, so misbehavior can be slashed on-chain.</p>
+      </div>
+      <div class="defense-chip">
+        <h4>Hybridization</h4>
+        <p>On smart-contract chains, cap withdrawal throughput or add a freeze switch at the source.</p>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- ============================ BUILT & TESTED ============================ -->
+  <!-- <section class="section" id="built">
+    <h2>Our implementation</h2>
+    <p>
+      We built a working prototype and integrated three different
+      chains: <strong>Bitcoin</strong>, <strong>Ethereum</strong>, and <strong>Solana</strong>.
+      Crossroads ideas are already being deployed into industry solutions as Oasis Sapphire integrated components of Crossroads
+      into its multi-chain wallet SDK, Privana.
+    </p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">3</div>
+        <div class="stat-label">chains integrated end-to-end: Bitcoin, Ethereum, Solana</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">&asymp; native</div>
+        <div class="stat-label">a deposit or withdrawal costs about the same as an ordinary transfer</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label">smart contracts required on the asset chain — Bitcoin works as-is</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">Proven</div>
+        <div class="stat-label">soundness: your net balance is always withdrawable</div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- ============================ CITE ============================ -->
+  <section class="section cite" id="cite">
+    <h2>Cite</h2>
+    <pre class="bibtex">@misc{crossroads2026,
+  title  = {Crossroads: A Smart Contract Layer for Chain-Abstracted Assets},
+  author = {Austgen, James and Vilardell, Dani and Juels, Ari},
+  year   = {2026},
+  note   = {Preprint}
+}</pre>
+  </section>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="footer">
+    <img class="footer-logo" src="logo.svg" alt="" width="28" height="28" />
+    <p>Crossroads &middot; Cornell Tech &middot; IC3</p>
+  </footer>
+
+</main>
+</body>
+</html>
