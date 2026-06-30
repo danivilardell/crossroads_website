@@ -122,13 +122,13 @@
       title: 'Deposit',
       body: 'Alice sends BTC to a Crossroads address controlled by the signing committee on Bitcoin. The deposit carries a tag (e.g. via the zero-value OP_RETURN output in Bitcoin transactions) binding it to her backend Crossroads account.',
       nodes: ['alice', 'btc'], edges: ['e1'], pool: false,
-      token: { x: 84, y: 150, label: 'BTC', color: C.btc, state: null }
+      token: { x: 84, y: 126, label: 'BTC', color: C.btc, state: null }
     },
     {
       title: 'Verify finality',
       body: "Bitcoin's oracle waits until the deposit is finalized, then relays the transaction inclusion to the backend chain.",
       nodes: ['btc', 'oracle', 'backend'], edges: ['e2'], pool: false,
-      token: { x: 84, y: 150, label: 'BTC', color: C.btc, state: 'lock' }
+      token: { x: 84, y: 126, label: 'BTC', color: C.btc, state: 'lock' }
     },
     {
       title: 'Mint',
@@ -158,7 +158,7 @@
       title: 'Withdraw',
       body: 'Alice broadcasts the signed transaction and receives native ETH on Ethereum on her own address. The oracle confirms it and settles her balance on the backend chain.',
       nodes: ['eth', 'aliceEoa'], edges: ['e5', 'e6'], pool: true,
-      token: { x: 708, y: 232, label: 'ETH', color: C.eth, state: null }
+      token: { x: 708, y: 210, label: 'ETH', color: C.eth, state: null }
     }
   ];
 
