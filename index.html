@@ -55,7 +55,7 @@
     <h2>Summary</h2>
     <div class="abstract-body">
       <p>
-        This paper introduces <strong>Crossroads</strong>, a smart contract layer for <em>chain-abstracted assets</em>. In Crossroads, assets from nearly any chain are represented on a single backend blockchain as <strong>ERC-20 tokens</strong>. As a result, any asset can participate in smart-contract-based exchange, lending, or privacy applications on a single unified platform. 
+        This paper introduces <strong>Crossroads</strong>, a smart contract layer for <em>chain-abstracted assets</em>. In Crossroads, assets from nearly any chain are represented on a single backend blockchain as ERC-20 tokens. As a result, any asset can participate in smart-contract-based exchange, lending, or privacy applications on a single unified platform. 
       </p>
       <p>
         Crossroads relies on <em>key encumbrance</em>: a threshold signing committee holds encumbered keys controlling assets on each integrated chain, signing transactions only as authorized by smart contracts on the backend blockchain. Asset movements are fee-efficient, as ownership changes are recorded on the backend blockchain.
@@ -71,17 +71,17 @@
     <h2>The messy landscape of cross-chain interoperability</h2>
     <p>
       A bridge enables two blockchains to securely communicate between each other. However, to fully connect <em>N</em> chains via individual bridges, <em>N&sup2;</em> bridges are necessary, each one built, deployed, and audited separately. With the 
-      existence of over 150 active chains, this becomes heavily impractical. A <strong>hub-and-spoke</strong> 
+      existence of over 150 active chains, this becomes heavily impractical. A hub-and-spoke
       design is a natural solution: connect each
       chain once to a central hub and every pair becomes reachable via that hub, with just <em>N</em> connections,
       far easier to audit than <em>N&sup2;</em> individual bridges.
     </p>
     <p>
       But every hub in use today comes with strings attached. Integration is generally
-      <strong>permissioned</strong>: operators decide which chains can be integrated, so only a handful of high liquidity chains ever do;
-      the hub's logic is <strong>fixed</strong> at the protocol level (only enabling transfers or swaps);
+      permissioned: operators decide which chains can be integrated, so only a handful of high liquidity chains ever do;
+      the hub's logic is fixed at the protocol level (only enabling transfers or swaps);
       and it usually demands verification logic on each integrated chain, leaving chains without smart
-      contracts, like Bitcoin, out. The ecosystem remains <strong>fragmented</strong> and to move between
+      contracts, like Bitcoin, out. The ecosystem remains fragmented and to move between
       two chains that don't share a hub, assets need to hop through a chain of intermediary bridges and swaps,
       paying a fee at every step. Any application built on cross-chain interoperability inherits
       those fees, making them prohibitively expensive.
@@ -193,7 +193,7 @@
     <p>
       In Crossroads, the committee is both a policy engine and not a custodian and signs a withdrawal only when the asset
       contract says you are allowed to make it. Via the use of threshold cryptography, no committee member ever holds the keys to the deposited funds.
-      This policy based custody model is called <strong>key encumbrance</strong>. The keys controlling your assets on the native chain
+      This policy based custody model is called <em>key encumbrance</em>. The keys controlling your assets on the native chain
       are generated and stored under a threshold signature scheme, and the policies for when and how they can be
       used to sign transactions are handled by the asset contract. 
     </p>

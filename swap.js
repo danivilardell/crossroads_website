@@ -26,20 +26,15 @@
   };
 
   // curated assets — majors plus assets known for gnarly cross-chain paths (lt = thin liquidity)
+  // Long-tail / poorly-connected assets, each on a distinct ecosystem. For these there is no solver
+  // inventory and no direct bridge, so a real aggregator genuinely routes swap -> bridge(USDC) -> swap.
+  // Blue-chip / THORChain-native assets (ETH, SOL, BTC, ATOM, ...) are intentionally excluded: today's
+  // intent-based solvers and direct bridges do those in ~1 step, so showing them multi-hop would overstate it.
   const ASSETS = [
-    { sym: 'ETH', chain: 'Ethereum' },
-    { sym: 'USDC', chain: 'Ethereum' },
-    { sym: 'BTC', chain: 'Bitcoin' },
-    { sym: 'SOL', chain: 'Solana' },
-    { sym: 'ETH', chain: 'Arbitrum' },
-    { sym: 'ETH', chain: 'Base' },
-    { sym: 'ETH', chain: 'Starknet' },
-    { sym: 'STRK', chain: 'Starknet', lt: true },
     { sym: 'WIF', chain: 'Solana', lt: true },
     { sym: 'BRETT', chain: 'Base', lt: true },
-    { sym: 'ATOM', chain: 'Cosmos' },
+    { sym: 'STRK', chain: 'Starknet', lt: true },
     { sym: 'OSMO', chain: 'Osmosis', lt: true },
-    { sym: 'XRP', chain: 'XRPL' },
     { sym: 'SUN', chain: 'Tron', lt: true }
   ];
 
@@ -76,8 +71,8 @@
     fromSel.add(new Option(label, keyOf(a)));
     toSel.add(new Option(label, keyOf(a)));
   });
-  fromSel.value = 'ETH@Starknet';  // the paper's motivating example
-  toSel.value = 'SOL@Solana';
+  fromSel.value = 'WIF@Solana';   // a genuinely hard long-tail pair (Solana memecoin -> Base memecoin)
+  toSel.value = 'BRETT@Base';
 
   function step(node, label, cls) {
     return `<li class="swap-step"><span class="swap-node ${cls || ''}">${node}</span><span>${esc(label)}</span></li>`;
@@ -180,10 +175,10 @@
 
   // quick "try a hard pair" presets
   const PRESETS = [
-    { label: 'StarkNet ETH → SOL', from: 'ETH@Starknet', to: 'SOL@Solana' },
     { label: 'WIF → BRETT', from: 'WIF@Solana', to: 'BRETT@Base' },
-    { label: 'BTC → ATOM', from: 'BTC@Bitcoin', to: 'ATOM@Cosmos' },
-    { label: 'SUN → OSMO', from: 'SUN@Tron', to: 'OSMO@Osmosis' }
+    { label: 'STRK → OSMO', from: 'STRK@Starknet', to: 'OSMO@Osmosis' },
+    { label: 'SUN → WIF', from: 'SUN@Tron', to: 'WIF@Solana' },
+    { label: 'OSMO → BRETT', from: 'OSMO@Osmosis', to: 'BRETT@Base' }
   ];
   if (presetsBox) {
     presetsBox.appendChild(Object.assign(document.createElement('span'),
