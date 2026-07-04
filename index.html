@@ -21,7 +21,6 @@
 
   <script src="flow.js" defer></script>
   <script src="swap.js" defer></script>
-  <script src="apps.js" defer></script>
 </head>
 <body>
 <main class="page">
@@ -29,17 +28,17 @@
   <!-- ============================ HERO ============================ -->
   <header class="hero">
     <div class="brand">
-      <img class="logo" src="logo.svg" alt="" width="44" height="44" />
+      <img class="logo" src="logo.svg" alt="" width="52" height="52" />
       <span class="brand-name">Crossroads</span>
     </div>
-    <h1 class="title">A Smart Contract Layer for Chain-Abstracted Assets</h1>
+    <h1 class="title">A Smart Contract Layer for Chain&#8209;Abstracted Assets</h1>
     <p class="authors">
-      <a href="https://www.cs.cornell.edu/~james/">James Austgen</a><sup>*</sup>,
-      <a href="https://danivilardell.com">Dani Vilardell</a><sup>*</sup>,
+      <a href="https://www.cs.cornell.edu/~james/">James Austgen</a>,
+      <a href="https://danivilardell.com">Dani Vilardell</a>,
       <a href="https://www.arijuels.com">Ari Juels</a>
     </p>
     <p class="affiliations">
-      Cornell Tech &middot; IC3 &nbsp;<span class="equal-contrib">&mdash; <sup>*</sup>equal contribution</span>
+      Cornell Tech &middot; IC3
     </p>
     <p class="venue">Preprint &middot; 2026</p>
     <nav class="actions">
@@ -90,6 +89,9 @@
 
     <!-- ---- Interactive figure: cross-chain swap (the motivation) ---- -->
     <div class="figure" id="swap">
+      <div class="fig-head">
+        <h3 class="fig-title">Cross-chain swaps today can be agonizing</h3>
+      </div>
       <div class="swap-presets" id="swap-presets" aria-label="Example asset pairs"></div>
       <div class="swap-pickers">
         <div class="swap-field">
@@ -105,9 +107,6 @@
       <div class="swap-routes">
         <div class="swap-route swap-old" id="swap-old"></div>
       </div>
-      <p class="caption">
-        Routes showcasing the steps to do a cross-chain swap.
-      </p>
       <!-- fee disclosure hidden for now (accuracy uncertain); restore by removing this comment wrapper
       <details class="swap-method">
         <summary>How these fees are estimated</summary>
@@ -131,7 +130,7 @@
     </div>
 
     <p>
-      The cost and complexity of cross-chain interoperability is what Crossroads aims to eliminate.
+      Crossroads aims to eliminate the cost and complexity of cross-chain interoperability.
     </p>
   </section>
 
@@ -208,12 +207,13 @@
       a cross-chain application the moment it is deployed on the backend. We present and categorize a range of such applications:
     </p>
 
-    <!-- ---- Interactive figure 4 ---- -->
+    <!-- ---- Applications table (from the paper) ---- -->
     <div class="apps" id="apps">
-      <div class="apps-grid" id="apps-grid"></div>
+      <figure class="apps-table">
+        <img src="applications.png" alt="Table of applications Crossroads enables, grouped into Wallets &amp; Liquidity, Universal Assets, and Privacy &amp; Compliance, with columns for the addressed issue, what Crossroads enables, and the backend contract used." />
+      </figure>
       <p class="apps-legend">
-        <span class="apps-badge apps-badge-built">Built</span> = implemented in our prototype.
-        <span class="apps-mark">&lowast;</span> = needs a privacy-preserving backend chain (e.g. Oasis Sapphire).
+        The red bar marks applications implemented in our prototype; <span class="apps-mark">&lowast;</span> marks those that need a privacy-preserving backend chain (e.g. Oasis Sapphire).
       </p>
     </div>
   </section>

@@ -11,12 +11,19 @@
   const SVG = 'http://www.w3.org/2000/svg';
   const W = 820, H = 350;
 
+  // light, editorial palette
   const C = {
-    stroke: 'rgba(228,232,231,0.22)', fill: 'rgba(255,255,255,0.035)',
-    strokeHi: '#5bb9b1', fillHi: 'rgba(91,185,177,0.16)',
-    title: '#e8edec', titleHi: '#ffffff', sub: '#9aa3a2', subHi: '#cdeae6',
-    edge: 'rgba(228,232,231,0.18)', edgeHi: '#5bb9b1',
-    btc: '#f7931a', crbtc: '#4ea8a0', creth: '#6f7cc4', eth: '#8aa0ff', burned: '#6b7280'
+    stroke: '#d9d8cd', fill: '#ffffff',
+    strokeHi: '#14756e', fillHi: '#e8f2f0',
+    title: '#1a1f1e', titleHi: '#0e5751', sub: '#8a918f', subHi: '#2f6f68',
+    edge: '#c3c4ba', edgeHi: '#14756e',
+    btc: '#b07a2e', crbtc: '#2f8a82', creth: '#5560a8', eth: '#466aa3', burned: '#a7aaa3',
+    paper: '#fbfaf7', poolFill: '#f6f5ef'
+  };
+  // light fill tint for each token colour
+  const TINT = {
+    '#b07a2e': '#f5ecda', '#2f8a82': '#e2f0ee', '#5560a8': '#e9ebf6',
+    '#466aa3': '#e7eef6', '#a7aaa3': '#eeeeeb'
   };
   const FONT = "'Inter', system-ui, sans-serif";
 
@@ -34,32 +41,28 @@
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}` }, stage);
 
-  // ---- defs: one arrow marker (fill inherits each edge's stroke, so tip + body always match) + filters ----
+  // ---- defs: one arrow marker (fill inherits each edge's stroke, so tip + body always match) ----
   const defs = el('defs', {}, svg);
-  const arrM = el('marker', { id: 'fa-arr', viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+  const arrM = el('marker', { id: 'fa-arr', viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 7.5, markerHeight: 7.5, orient: 'auto-start-reverse' }, defs);
   el('path', { d: 'M0,0 L10,5 L0,10 z', fill: 'context-stroke' }, arrM);
-  const fShadow = el('filter', { id: 'fl-shadow', x: '-60%', y: '-60%', width: '220%', height: '220%' }, defs);
-  el('feDropShadow', { dx: 0, dy: 1, stdDeviation: 1.6, 'flood-color': '#000', 'flood-opacity': 0.5 }, fShadow);
-  const fGlow = el('filter', { id: 'fl-glow', x: '-60%', y: '-60%', width: '220%', height: '220%' }, defs);
-  el('feDropShadow', { dx: 0, dy: 0, stdDeviation: 3, 'flood-color': C.strokeHi, 'flood-opacity': 0.55 }, fGlow);
 
   // ---- edges (drawn first, behind nodes) ----
   const edges = {};
   function edge(key, x1, y1, x2, y2) {
-    edges[key] = el('line', { x1, y1, x2, y2, stroke: C.edge, 'stroke-width': 1.4, 'marker-end': 'url(#fa-arr)' }, svg);
+    edges[key] = el('line', { x1, y1, x2, y2, stroke: C.edge, 'stroke-width': 1.2, 'marker-end': 'url(#fa-arr)' }, svg);
   }
   edge('e1', 84, 70, 84, 182);      // alice -> bitcoin
   // bitcoin -> backend, elbowed so the Oracle box sits on its horizontal run (one relayed step)
-  edges['e2'] = el('path', { d: 'M 84 238 L 84 282 L 244 282', fill: 'none', stroke: C.edge, 'stroke-width': 1.4, 'marker-end': 'url(#fa-arr)' }, svg);
+  edges['e2'] = el('path', { d: 'M 84 238 L 84 282 L 244 282', fill: 'none', stroke: C.edge, 'stroke-width': 1.2, 'marker-end': 'url(#fa-arr)' }, svg);
   edge('e4', 405, 106, 405, 72);    // backend -> committee
   edge('e5', 565, 188, 652, 162);   // backend -> ethereum
   edge('e6', 708, 176, 708, 261);   // ethereum -> Alice's wallet
 
-  // ---- nodes ----
+  // ---- nodes (white cards; the opaque white fill also hides the edge behind the Oracle) ----
   const nodes = {};
   function node(key, cx, cy, w, h, title, sub, titleY) {
     const g = el('g', {}, svg);
-    const box = el('rect', { x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: 12, fill: C.fill, stroke: C.stroke, 'stroke-width': 1.4 }, g);
+    const box = el('rect', { x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: 10, fill: C.fill, stroke: C.stroke, 'stroke-width': 1.2 }, g);
     const ty = titleY != null ? titleY : (sub ? cy - 3 : cy + 4);
     const t1 = text(g, cx, ty, title, { 'font-size': 13, 'font-weight': 600, fill: C.title });
     const t2 = sub ? text(g, cx, ty + 15, sub, { 'font-size': 10, fill: C.sub }) : null;
@@ -70,8 +73,6 @@
   node('eth', 708, 150, 112, 52, 'Ethereum', 'asset chain');
   node('aliceEoa', 708, 286, 138, 50, 'Alice’s wallet', 'EOA on Ethereum');
   node('committee', 405, 50, 232, 44, 'Signing committee', 'threshold keys');
-  // opaque backing (matches the stage) so the arrow is hidden behind the Oracle box — it sits on the line
-  el('rect', { x: 98, y: 265, width: 132, height: 34, rx: 12, fill: '#1a2230' }, svg);
   node('oracle', 164, 282, 132, 34, 'Oracle', null);
   node('backend', 405, 202, 320, 192, 'Crossroads backend', null, 126);
 
@@ -79,16 +80,16 @@
   const poolG = el('g', {}, svg);
   const BASE = 262;                                   // bar baseline (bottom)
   const pool = {
-    box: el('rect', { x: 400, y: 172, width: 152, height: 104, rx: 10, fill: 'rgba(255,255,255,0.03)', stroke: C.stroke, 'stroke-width': 1.2 }, poolG),
+    box: el('rect', { x: 400, y: 172, width: 152, height: 104, rx: 8, fill: C.poolFill, stroke: C.stroke, 'stroke-width': 1.2 }, poolG),
     header: text(poolG, 476, 188, 'AMM pool', { 'font-size': 10, 'font-weight': 600, fill: C.sub, 'letter-spacing': '0.04em' })
   };
   // reserve bars
-  pool.crBTC = el('rect', { x: 438, y: BASE - 26, width: 28, height: 26, rx: 4, fill: C.crbtc, opacity: 0.85 }, poolG);
-  pool.crETH = el('rect', { x: 488, y: BASE - 26, width: 28, height: 26, rx: 4, fill: C.creth, opacity: 0.85 }, poolG);
+  pool.crBTC = el('rect', { x: 438, y: BASE - 26, width: 28, height: 26, rx: 3, fill: C.crbtc, opacity: 0.9 }, poolG);
+  pool.crETH = el('rect', { x: 488, y: BASE - 26, width: 28, height: 26, rx: 3, fill: C.creth, opacity: 0.9 }, poolG);
   text(poolG, 452, 270, 'crBTC', { 'font-size': 8, 'font-weight': 600, fill: C.crbtc });
   text(poolG, 502, 270, 'crETH', { 'font-size': 8, 'font-weight': 600, fill: C.creth });
   // swap arrow (crBTC -> crETH), shown during the trade step
-  pool.arrow = el('path', { d: 'M 466 220 Q 477 210 488 220', fill: 'none', stroke: C.edgeHi, 'stroke-width': 1.6, 'marker-end': 'url(#fa-arr)', opacity: 0 }, poolG);
+  pool.arrow = el('path', { d: 'M 466 220 Q 477 210 488 220', fill: 'none', stroke: C.edgeHi, 'stroke-width': 1.4, 'marker-end': 'url(#fa-arr)', opacity: 0 }, poolG);
 
   function setPool(traded, hi) {
     const crB = traded ? { y: BASE - 44, h: 44 } : { y: BASE - 26, h: 26 };
@@ -96,8 +97,7 @@
     pool.crBTC.setAttribute('y', crB.y); pool.crBTC.setAttribute('height', crB.h);
     pool.crETH.setAttribute('y', crE.y); pool.crETH.setAttribute('height', crE.h);
     pool.box.setAttribute('stroke', hi ? C.strokeHi : C.stroke);
-    pool.box.setAttribute('fill', hi ? 'rgba(91,185,177,0.10)' : 'rgba(255,255,255,0.03)');
-    pool.box.setAttribute('filter', hi ? 'url(#fl-glow)' : 'none');
+    pool.box.setAttribute('fill', hi ? C.fillHi : C.poolFill);
     pool.header.setAttribute('fill', hi ? C.subHi : C.sub);
     pool.arrow.setAttribute('opacity', hi ? 1 : 0);
   }
@@ -105,15 +105,15 @@
   // ---- ghost token (the crBTC going INTO the pool during the trade) ----
   const ghostG = el('g', {}, svg);
   ghostG.setAttribute('opacity', 0);
-  el('circle', { cx: 452, cy: 222, r: 11, fill: C.crbtc, opacity: 0.9 }, ghostG);
-  text(ghostG, 452, 225, 'crBTC', { 'font-size': 7, 'font-weight': 700, fill: '#fff' });
+  el('circle', { cx: 452, cy: 222, r: 11, fill: TINT[C.crbtc], stroke: C.crbtc, 'stroke-width': 1.3 }, ghostG);
+  text(ghostG, 452, 225, 'crBTC', { 'font-size': 7, 'font-weight': 600, fill: C.crbtc });
 
-  // ---- main token ----
+  // ---- main token (flat chip: light fill, coloured border + label) ----
   const tokenG = el('g', {}, svg);
   tokenG.style.transition = 'transform 650ms cubic-bezier(.4,0,.2,1)';
-  const tokenRing = el('circle', { r: 22, fill: 'none', stroke: 'transparent', 'stroke-width': 2, 'stroke-dasharray': '4 3' }, tokenG);
-  const tokenCirc = el('circle', { r: 18, fill: C.btc, stroke: 'rgba(0,0,0,0.18)', 'stroke-width': 1, filter: 'url(#fl-shadow)' }, tokenG);
-  const tokenTxt = text(tokenG, 0, 4, 'BTC', { 'font-size': 10, 'font-weight': 700, fill: '#fff' });
+  const tokenRing = el('circle', { r: 22, fill: 'none', stroke: 'transparent', 'stroke-width': 1.4, 'stroke-dasharray': '3 3' }, tokenG);
+  const tokenCirc = el('circle', { r: 18, fill: TINT[C.btc], stroke: C.btc, 'stroke-width': 1.5 }, tokenG);
+  const tokenTxt = text(tokenG, 0, 4, 'BTC', { 'font-size': 10, 'font-weight': 700, fill: C.btc });
   function placeToken(x, y) { tokenG.style.transform = `translate(${x}px, ${y}px)`; }
 
   // ---- steps (titles/bodies unchanged) ----
@@ -169,14 +169,12 @@
     Object.values(nodes).forEach(n => {
       n.box.setAttribute('stroke', C.stroke);
       n.box.setAttribute('fill', C.fill);
-      n.box.setAttribute('filter', 'none');
       n.t1.setAttribute('fill', C.title);
       if (n.t2) n.t2.setAttribute('fill', C.sub);
     });
     Object.values(edges).forEach(e => {
       e.setAttribute('stroke', C.edge);
-      e.setAttribute('stroke-width', 1.4);
-      e.setAttribute('marker-end', 'url(#fa-arr)');
+      e.setAttribute('stroke-width', 1.2);
     });
   }
 
@@ -189,7 +187,6 @@
       if (!n) return;
       n.box.setAttribute('stroke', C.strokeHi);
       n.box.setAttribute('fill', C.fillHi);
-      n.box.setAttribute('filter', 'url(#fl-glow)');
       n.t1.setAttribute('fill', C.titleHi);
       if (n.t2) n.t2.setAttribute('fill', C.subHi);
     });
@@ -197,23 +194,24 @@
       const e = edges[k];
       if (!e) return;
       e.setAttribute('stroke', C.edgeHi);
-      e.setAttribute('stroke-width', 2.2);
+      e.setAttribute('stroke-width', 2);
     });
 
     // pool + ghost
     setPool(!!s.pool, !!s.poolHi);
-    ghostG.setAttribute('opacity', s.ghost ? 0.85 : 0);
+    ghostG.setAttribute('opacity', s.ghost ? 1 : 0);
 
     // token
     const tk = s.token;
     placeToken(tk.x, tk.y);
-    tokenCirc.setAttribute('fill', tk.color);
+    tokenCirc.setAttribute('fill', TINT[tk.color] || '#ffffff');
+    tokenCirc.setAttribute('stroke', tk.color);
     tokenTxt.textContent = tk.label;
     tokenTxt.setAttribute('font-size', tk.label.length > 4 ? 8.5 : 10);
-    tokenG.style.opacity = tk.state === 'burn' ? 0.5 : 1;
-    if (tk.state === 'lock') tokenRing.setAttribute('stroke', 'rgba(255,255,255,0.6)');
-    else if (tk.state === 'burn') tokenRing.setAttribute('stroke', '#9aa3a2');
-    else if (tk.state === 'pending') tokenRing.setAttribute('stroke', 'rgba(205,211,210,0.7)');
+    tokenTxt.setAttribute('fill', tk.color);
+    tokenG.style.opacity = tk.state === 'burn' ? 0.6 : 1;
+    if (tk.state === 'lock' || tk.state === 'pending') tokenRing.setAttribute('stroke', '#9aa19e');
+    else if (tk.state === 'burn') tokenRing.setAttribute('stroke', '#b3b6af');
     else tokenRing.setAttribute('stroke', 'transparent');
 
     // description — toggle the active pre-rendered panel (heights are reserved, so nothing shifts)
